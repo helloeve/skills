@@ -1,0 +1,69 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": [
+    "config:recommended",
+    ":semanticCommitTypeAll(chore)",
+    ":ignoreUnstable",
+    ":separateMajorReleases",
+    ":prConcurrentLimitNone",
+    ":prHourlyLimitNone",
+    ":preserveSemverRanges"
+  ],
+  "rebaseWhen": "conflicted",
+  "dependencyDashboardLabels": [
+    "type: process"
+  ],
+  "git-submodules": {
+    "enabled": true
+  },
+  "packageRules": [
+    {
+      "groupName": "GitHub Actions",
+      "matchManagers": [
+        "github-actions"
+      ],
+      "pinDigests": true
+    },
+    {
+      "matchManagers": [
+        "git-submodules",
+        "custom.jsonata"
+      ],
+      "groupName": "{{{replace 'https://github.com/' '' sourceUrl}}}",
+      "semanticCommitType": "feat"
+    },
+    {
+      "matchManagers": [
+        "git-submodules"
+      ],
+      "matchUpdateTypes": [
+        "digest"
+      ],
+      "enabled": false
+    }
+  ],
+  "customManagers": [
+    {
+      "customType": "jsonata",
+      "fileFormat": "json",
+      "managerFilePatterns": [
+        "/^\\.claude-plugin/marketplace\\.json$/"
+      ],
+      "matchStrings": [
+        "plugins.{ \"depName\": $substringAfter(source.repo, \"/\"), \"packageName\": source.repo, \"currentValue\": source.ref }"
+      ],
+      "datasourceTemplate": "github-tags"
+    },
+    {
+      "customType": "jsonata",
+      "fileFormat": "json",
+      "managerFilePatterns": [
+        "/^\\.agents/plugins/marketplace\\.json$/"
+      ],
+      "matchStrings": [
+        "plugins.($r := $replace(source.url, /^https:\\/\\/github\\.com\\/|\\.git$/, \"\"); { \"depName\": $substringAfter($r, \"/\"), \"packageName\": $r, \"currentValue\": source.ref })"
+      ],
+      "datasourceTemplate": "github-tags"
+    }
+  ]
+}
